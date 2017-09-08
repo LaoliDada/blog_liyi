@@ -7,6 +7,7 @@ import addoneass from '@/components/backmainnomal/firstass_right'
 import allass from '@/components/backmainnomal/allass'
 import addtwoass from '@/components/backmainnomal/chiass_right'
 import newart from '@/components/backmainnomal/newart'
+import xgart from '@/components/backmainnomal/xiugaiart'
 
 Vue.use(Router)
 
@@ -36,6 +37,9 @@ export default new Router({
 			}, {
 				path: "newart",
 				component: newart
+			}, {
+				path: "xgart",
+				component: xgart
 			}]
     }
   ]

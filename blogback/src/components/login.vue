@@ -28,8 +28,8 @@
 				var _this = this;
 				if (this.username != "" && this.pwd != "") {
 					this.$ajax.post("http://localhost:3000/api", {
-						username: _this.username,
-						pwd: _this.pwd
+						loginname: _this.username,
+						loginpw: _this.pwd
 					}).then(function(msg) {
 						console.log(msg.data)
 						if (msg.data.code == "1003") {
@@ -48,7 +48,7 @@
 								type: "success"
 							});
 							sessionStorage.setItem("username", _this.username);
-							_this.$router.push("/back")
+							_this.$router.replace("/back")
 						}
 
 					})

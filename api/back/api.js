@@ -13,9 +13,9 @@ router.post("/", function (req, res, next) {
 		let user = false;
 		let userI = null
 		rows.forEach(function (i) {
-			if (req.body.username === i.name) {
+			if (req.body.loginname === i.name) {
 				user = true
-				state = req.body.pwd === i.password
+				state = req.body.loginpw === i.password
 				userI = i
 			}
 		});
@@ -85,7 +85,7 @@ router.post("/add_class_one", function (req, res, next) {
 	// 二级分类插入数据sql
 	var sqlinsert2 = `insert into two_class(id,parent_id,enname,cnname,article_num,time) values('${generateUUID()}','${oneid}','${req.body.enname_two}','${req.body.cnname_two}',0,'${creatTime()}')`
 	// 创建文章表
-	var createTable = `CREATE TABLE ${req.body.enname_one} (LIST INT(11) UNIQUE NOT NULL AUTO_INCREMENT, id VARCHAR(255) UNIQUE PRIMARY KEY, oneId VARCHAR(255), twoId VARCHAR(255), article_name VARCHAR(255), editer VARCHAR(255), content LONGTEXT, TIME DATETIME, visitors INT, daodu VARCHAR(255), imgsrc VARCHAR(255), recommend TINYINT, art_show TINYINT);`
+	var createTable = `CREATE TABLE ${req.body.enname_one} (LIST INT(11) UNIQUE NOT NULL AUTO_INCREMENT, id VARCHAR(255) UNIQUE PRIMARY KEY, onenname VARCHAR(255),oneId VARCHAR(255), twoId VARCHAR(255), article_name VARCHAR(255), editer VARCHAR(255), content LONGTEXT, TIME DATETIME, visitors INT, daodu VARCHAR(255), imgsrc VARCHAR(255), recommend TINYINT, art_show TINYINT);`
 	testsqlFn(req, res, next, sqltest1).then(function (data) {
 		return sqlStateFn(req, res, next, sqlinsert1)
 	}, function (err) {
@@ -230,6 +230,7 @@ router.get("/class_list", function (req, res, next) {
 
 			resdata.push(everydata)
 		})
+		console.log(resdata)
 		res.send({
 			code: "1043",
 			data: resdata,
@@ -261,23 +262,33 @@ router.post("/amend_class_one", function (req, res, next) {
 	var amendTable = `alter table ${req.body.oldenname_one} rename ${req.body.enname_one}`
 	console.log(amendTable)
 	testsqlFn(req, res, next, sqltest1).then(function (data) {
-			// 检测更新有没有成功
-			return sqlStateFn(req, res, next, updatesql)
-		},
-		function (err) {
-			res.send({
-				code: "1060",
-				msg: "分类一英文标识冲突"
-			})
-		}).then(function (data) {
+		// 检测更新有没有成功
+		return sqlStateFn(req, res, next, updatesql)
+	}, function (err) {
 		res.send({
-			code: "1062",
-			msg: "修改表成功"
+			code: "1050",
+			msg: "分类一英文标识冲突"
 		})
+	}).then(function (data) {
+		query(amendTable, function (err, rows, fields) {
+			if (err) {
+				res.send({
+					code: "1051",
+					msg: "修改表失败"
+				})
+			} else {
+				res.send({
+					code: "1052",
+					msg: "修改表成功"
+				})
+			}
+
+		})
+
 
 	}, function (err) {
 		res.send({
-			code: "1063",
+			code: "1053",
 			msg: "修改表失败"
 		})
 	})
@@ -295,7 +306,7 @@ router.post("/amend_class_two", function (req, res, next) {
 	}, function (err) {
 		res.send({
 			code: "1060",
-			msg: "分类二英文标识冲突"
+			msg: "分类一英文标识冲突"
 		})
 	}).then(function (data) {
 		res.send({

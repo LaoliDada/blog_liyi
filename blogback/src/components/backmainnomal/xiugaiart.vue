@@ -8,26 +8,6 @@
 		<el-input v-model="formLabelAlign.biaoti"></el-input>
 	</el-form-item>
 	
-	 <el-form-item label="一级分类" prop="region">
-    <el-select v-model="valueonesel" clearable placeholder="请选择" @change="parassselchange">
-    <el-option
-      v-for="item in optionsonesel"
-      :key="item.value"
-      :label="item.label"
-      :value="item.value">
-    </el-option>
-  </el-select>
-  </el-form-item>
-  <el-form-item label="二级分类" prop="region">
-    <el-select v-model="valuetwosel" clearable placeholder="请选择" @change="chiassselchange">
-    <el-option
-      v-for="item in optionstwosel"
-      :key="item.value"
-      :label="item.label"
-      :value="item.value">
-    </el-option>
-  </el-select>
-  </el-form-item>
   <el-form-item label="图片路径:" prop="img" :rules="[ { required: true, message: '路径不能为空'} ]">
 		<el-input v-model="formLabelAlign.img"></el-input>
 	</el-form-item>	
@@ -78,9 +58,7 @@
 					region: '',
 					img: "https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1504612617441&di=d4605e18495c0c0cbd226154e5574915&imgtype=0&src=http%3A%2F%2Fdn-kdt-img.qbox.me%2Fupload_files%2F2015%2F05%2F15%2FFpkcL_qjI3HNgcVePyXr-KtYV54F.jpg"
 				},
-				optionsonesel: [],
 				valueonesel: '',
-				optionstwosel: [],
 				valuetwosel: '',
 				tuijian: "10",
 				bloart: "21",
@@ -91,15 +69,20 @@
 			}
 		},
 		mounted() {
-			var _this = this;
-			this.$ajax.get("http://localhost:3000/api/class_list").then(function(mag) {
-				mag.data.data.forEach(function(i, index) {
-					_this.optionsonesel.push({
-						value: index,
-						label: i.onedata.cnname,
-						id: i.onedata.id,
-						enname: i.onedata.enname
-					})
+			var that = this;
+			this.$ajax.get("http://localhost:3000/article/getArticle").then(function(msg) {
+				msg.data.data.forEach(function(i) {
+					if (i.id == sessionStorage.getItem("xgartid")) {
+						console.log(i)
+						that.formLabelAlign.biaoti = i.article_name;
+						that.formLabelAlign.img = i.imgsrc;
+						that.formLabelAlign.zuozhe = i.editer;
+						that.formLabelAlign.daodu = i.daodu;
+						that.editor = i.content;
+						that.tuijian = i.recommend + "";
+						that.bloart = i.art_show + "";
+						that.oneoptenname = i.onenname;
+					}
 				})
 			})
 		},
@@ -130,11 +113,9 @@
 				this.$refs[formName].validate((valid) => {
 					if (valid) {
 						_this.gettime();
-						_this.$ajax.post("http://localhost:3000/article/addArticle", {
+						_this.$ajax.post("http://localhost:3000/article/amendArticle", {
 							enname_one: _this.oneoptenname,
 							onenname: _this.oneoptenname,
-							oneId: _this.oneoptid,
-							twoId: _this.twooptid,
 							article_name: _this.formLabelAlign.biaoti,
 							editer: _this.formLabelAlign.zuozhe,
 							content: _this.editor,
@@ -142,7 +123,8 @@
 							daodu: _this.formLabelAlign.daodu,
 							imgsrc: _this.formLabelAlign.img,
 							recommend: parseInt(_this.tuijian),
-							art_show: parseInt(_this.bloart)
+							art_show: parseInt(_this.bloart),
+							id: sessionStorage.getItem("xgartid")
 						}).then(function(msg) {
 							console.log(msg)
 							_this.resetForm("formLabelAlign");
@@ -156,31 +138,6 @@
 			resetForm(formName) {
 				this.$refs[formName].resetFields();
 				this.editor = ""
-			},
-			parassselchange(a) {
-				this.optionstwosel = [];
-				this.oneoptid = this.optionsonesel[a].id;
-				this.oneoptenname = this.optionsonesel[a].enname;
-				var _this = this;
-				this.$ajax.get("http://localhost:3000/api/class_list").then(function(msg) {
-					msg.data.data.forEach(function(i, ind) {
-						if (_this.optionsonesel[a].id == i.onedata.id) {
-							i.twodata.forEach(function(x, n) {
-								_this.optionstwosel.push({
-									label: x.cnname,
-									value: x.id
-								})
-							})
-						}
-
-					})
-					if (msg.data.data.length == 0) {
-						_this.empty = true;
-					} else {
-						_this.empty = false
-					}
-				})
-				console.log(a);
 			}
 		}
 
